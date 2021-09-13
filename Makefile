@@ -1,23 +1,26 @@
-CC=g++
-WC=x86_64-w64-mingw32-g++
-
-CFLAGS=-std=c++17 -Wpedantic -Wall -Werror -Wextra -Weffc++ -Wzero-as-null-pointer-constant
-LIBS=-static-libgcc -static-libstdc++
+CXX=g++
+CXXFLAGS=-std=c++17 -Wpedantic -Wall -Wextra -Werror -Weffc++ -Wzero-as-null-pointer-constant
 OPTIMIZE=-O2
+FILES=Converter.hpp Converter.cpp
+MAINFILE=main.cpp
+TARGET=converter
+TESTFILES=converterTests.cpp
+TESTLIBRARIES=-l gtest -l pthread
 
-FILES=main.cpp
-TARGET=convert
+all: $(TARGET)
+$(TARGET): $(FILES) $(MAINFILE)
+	$(CXX) $(CXXFLAGS) $(OPTIMIZE) $(FILES) $(MAINFILE) -o $(TARGET)
 
-all: ${TARGET} ${TARGET}.exe
-${TARGET}: ${FILES}
-	${CC} ${CFLAGS} ${OPTIMIZE} ${FILES} -o ${TARGET}
+debug: $(FILES) $(MAINFILE)
+	$(CXX) $(CXXFLAGS) -g $(FILES) $(MAINFILE) -o $(TARGET)-debug
 
-${TARGET}.exe: ${FILES}
-	${WC} ${CFLAGS} ${OPTIMIZE} ${LIBS} ${FILES} -o ${TARGET}.exe
+tests: $(FILES) $(TESTFILES)
+	$(CXX) $(CXXFLAGS) $(OPTIMIZE) $(FILES) $(TESTFILES) -o $(TARGET)-tests $(TESTLIBRARIES)
 
-run: ${TARGET}
-	valgrind ./${TARGET}
+run: $(TARGET)
+	valgrind ./$(TARGET)
 
 clean:
-	/bin/rm -f ${TARGET}
-	/bin/rm -f ${TARGET}.exe
+	/bin/rm -f $(TARGET)
+	/bin/rm -f $(TARGET)-debug
+	/bin/rm -f $(TARGET)-tests
